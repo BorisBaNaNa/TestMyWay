@@ -37,7 +37,12 @@ namespace Assets.TestProject.Scripts.LoaderScene
             SceneManager.UnloadSceneAsync(SCENE_NAME);
         }
 
-        public void SetMaxLoadCount(int count) => _maxLoadCount = count;
+        public void SetMaxLoadCount(int count)
+        {
+            _maxLoadCount = count;
+            _loadedCount = 0;
+            _progressBar.fillAmount = 0f;
+        }
 
         public void IncProgress()
         {
@@ -74,8 +79,7 @@ namespace Assets.TestProject.Scripts.LoaderScene
                 {
                     gameObject.SetActive(false);
                     _loadSequence.Kill();
-                    _maxLoadCount = 0;
-                    _loadedCount = 0;
+                    SetMaxLoadCount(0);
                 });
         }
     }

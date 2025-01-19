@@ -1,4 +1,5 @@
 ﻿using Assets.TestProject.Scripts.Data;
+using Cysharp.Threading.Tasks;
 using System;
 using TMPro;
 using UnityEngine;
@@ -12,6 +13,7 @@ namespace Assets.TestProject.Scripts.Infractructure
 
         [SerializeField] private TextMeshProUGUI _counterTMP;
         [SerializeField] private Button _incrementBtn;
+        [SerializeField] private string _buttonSpriteName;
 
         public int Count
         {
@@ -35,9 +37,14 @@ namespace Assets.TestProject.Scripts.Infractructure
             _incrementBtn.onClick.RemoveListener(Inctement);
         }
 
-        public void Setup(int startCount)
+        public async UniTask SetupAsync(string simplesSceneBundleID, int startCount)
         {
             Count = startCount;
+
+            Sprite buttonSprite = await AllServices.GetService<AssetBundleLoader>()
+                .LoadAssetAsync<Sprite>(simplesSceneBundleID, _buttonSpriteName);
+            //_incrementBtn.image.overrideSprite = buttonSprite;
+            _incrementBtn.image.sprite = buttonSprite;
         }
 
         private void Inctement() => ++Count;

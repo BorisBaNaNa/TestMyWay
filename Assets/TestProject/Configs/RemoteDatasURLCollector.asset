@@ -12,5 +12,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fdb791a4348e2494190be6615b3634e4, type: 3}
   m_Name: RemoteDatasURLCollector
   m_EditorClassIdentifier: 
-  <GameSettingsURL>k__BackingField: 1aEJ3Fu9gUf__pgjvZLNJ82UanlQ_1F2v
-  <HelloMessageURL>k__BackingField: 1YQKt00670y_1hI6iSu-SxVmuZoz44sU5
+  <GameSettingsID>k__BackingField: 1aEJ3Fu9gUf__pgjvZLNJ82UanlQ_1F2v
+  <HelloMessageID>k__BackingField: 1YQKt00670y_1hI6iSu-SxVmuZoz44sU5
+  <SimplesSceneBundleID>k__BackingField: 1y0-NqbYzQZ8LaoGJ226FlQJGvUw_qXnO

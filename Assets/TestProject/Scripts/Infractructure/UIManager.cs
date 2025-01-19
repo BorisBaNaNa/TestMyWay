@@ -1,4 +1,6 @@
 ﻿using Assets.TestProject.Scripts.Data;
+using Assets.TestProject.Scripts.LoaderScene;
+using Cysharp.Threading.Tasks;
 using System;
 using TMPro;
 using UnityEngine;
@@ -25,17 +27,14 @@ namespace Assets.TestProject.Scripts.Infractructure
             _updateContentBtn.onClick.RemoveListener(SendUpdateRequest);
         }
 
-        public void Setup(HelloMessage helloMessage, GameSettings gameSettings, GameInfo _gameInfo)
+        public async UniTask SetupAsync(LoadPreviewer _loadPreviewer, HelloMessage helloMessage, GameInfo _gameInfo, string simplesSceneBundleID)
         {
-            if (helloMessage == null || gameSettings == null)
-            {
-                Debug.LogError("HelloMessage or GameSettings is null");
-                return;
-            }
-
+            _loadPreviewer.SetMaxLoadCount(1);
             _helloMessageTMP.text = helloMessage.Message;
-            int startCount = _gameInfo.CounterInfo == null ? gameSettings.StartingNumber : _gameInfo.CounterInfo.LastCount;
-            _counter.Setup(startCount);
+
+            int startCount = _gameInfo.CounterInfo == null ? _gameInfo.GameSettings.StartingNumber : _gameInfo.CounterInfo.LastCount;
+            await _counter.SetupAsync(simplesSceneBundleID, startCount);
+            _loadPreviewer.IncProgress();
         }
 
         public void SaveInfoTo(GameInfo gameInfo)
@@ -43,9 +42,11 @@ namespace Assets.TestProject.Scripts.Infractructure
             gameInfo.CounterInfo = _counter.Info;
         }
 
-        public void UpdateInfo(GameSettings gameSettings)
+        public async UniTask UpdateInfo(LoadPreviewer _loadPreviewer, string simplesSceneBundleID, GameSettings gameSettings)
         {
-            _counter.Setup(gameSettings.StartingNumber);
+            _loadPreviewer.SetMaxLoadCount(1);
+            await _counter.SetupAsync(simplesSceneBundleID, gameSettings.StartingNumber);
+            _loadPreviewer.IncProgress();
         }
 
         private void SendUpdateRequest() => UpdateRequested?.Invoke();

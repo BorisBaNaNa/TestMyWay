@@ -288,6 +288,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _remoteDatasURLCollector: {fileID: 11400000, guid: 255e40b69269abc48912e9e944b58733, type: 2}
   _uiManager: {fileID: 1792691256}
+  _fakeLoadTime: 2
 --- !u!4 &275243801
 Transform:
   m_ObjectHideFlags: 0
@@ -1126,6 +1127,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _counterTMP: {fileID: 1544581275}
   _incrementBtn: {fileID: 1398261684}
+  _buttonSpriteName: IncrementBtnSprite
 --- !u!1 &1544581273
 GameObject:
   m_ObjectHideFlags: 0
@@ -1326,8 +1328,8 @@ MonoBehaviour:
   m_fontMaterials: []
   m_fontColor32:
     serializedVersion: 2
-    rgba: 4281479730
-  m_fontColor: {r: 0.19607843, g: 0.19607843, b: 0.19607843, a: 1}
+    rgba: 4294963456
+  m_fontColor: {r: 0, g: 0.94411135, b: 1, a: 1}
   m_enableVertexGradient: 0
   m_colorMode: 3
   m_fontColorGradient:

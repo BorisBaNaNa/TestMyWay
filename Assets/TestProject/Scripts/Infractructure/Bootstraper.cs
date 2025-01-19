@@ -12,8 +12,9 @@ namespace Assets.TestProject.Scripts.Infractructure
         private void Awake()
         {
             //Когда лень вспоминать или юзать Zenject
-            AllServices.RegService<IRemoteInfoLoader>(new GoogleDiskLoader());
+            AllServices.RegService<IRemoteInfoLoader>(new GoogleDiskJsonLoader());
             AllServices.RegService<IGameInfoManager>(new FileGameInfoManager());
+            AllServices.RegService<AssetBundleLoader>(new());
         }
 
         private void Start()
@@ -25,6 +26,7 @@ namespace Assets.TestProject.Scripts.Infractructure
         {
             AllServices.DisposeService<IRemoteInfoLoader>();
             AllServices.DisposeService<IGameInfoManager>();
+            AllServices.DisposeService<AssetBundleLoader>();
         }
     }
 }

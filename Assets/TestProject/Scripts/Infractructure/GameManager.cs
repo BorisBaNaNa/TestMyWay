@@ -41,16 +41,26 @@ namespace Assets.TestProject.Scripts.Infractructure
             _remoteInfoLoader = AllServices.GetService<IRemoteInfoLoader>();
             _gameInfoManager = AllServices.GetService<IGameInfoManager>();
 
-            await SetupLoadPreviewver(4);
+            await SetupLoadPreviewver(5);
             _loadPreviewer.StartLoadAnim(true);
 
             GameInfo gameInfo = await LoadGameInfo();
-            GameSettings gameSettings = await LoadGameSettings(_remoteInfoLoader, gameInfo);
+            await LoadGameSettings(_remoteInfoLoader, gameInfo);
             HelloMessage helloMessage = await LoadHelloInfo(_remoteInfoLoader);
+            await LoadAssetBundle();
             await FakeLoad();
 
-            _uiManager.Setup(helloMessage, gameSettings, gameInfo);
+            await _uiManager.SetupAsync(_loadPreviewer, helloMessage, gameInfo, _remoteDatasURLCollector.SimplesSceneBundleID);
             _loadPreviewer.StopLoadAnim();
+        }
+
+        private async UniTask<AssetBundle> LoadAssetBundle()
+        {
+            var assetBundle = await AllServices.GetService<AssetBundleLoader>()
+                .LoadAndCacheAsync(_remoteDatasURLCollector.SimplesSceneBundleID);
+            _loadPreviewer.IncProgress();
+
+            return assetBundle;
         }
 
         private async Task<GameInfo> LoadGameInfo()
@@ -62,7 +72,7 @@ namespace Assets.TestProject.Scripts.Infractructure
 
         private async Task<GameSettings> LoadGameSettings(IRemoteInfoLoader remoteInfoLoader, GameInfo gameInfo)
         {
-            var gameSettings = await remoteInfoLoader.LoadAsync<GameSettings>(_remoteDatasURLCollector.GameSettingsURL);
+            var gameSettings = await remoteInfoLoader.LoadAsync<GameSettings>(_remoteDatasURLCollector.GameSettingsID);
 
             if (gameSettings == null)
                 gameSettings = gameInfo.GameSettings;
@@ -75,8 +85,12 @@ namespace Assets.TestProject.Scripts.Infractructure
 
         private async Task<HelloMessage> LoadHelloInfo(IRemoteInfoLoader remoteInfoLoader)
         {
-            var helloMessage = await remoteInfoLoader.LoadAsync<HelloMessage>(_remoteDatasURLCollector.HelloMessageURL);
+            var helloMessage = await remoteInfoLoader.LoadAsync<HelloMessage>(_remoteDatasURLCollector.HelloMessageID);
             _loadPreviewer.IncProgress();
+
+            if (helloMessage == null)
+                helloMessage = new HelloMessage("Hello base!");
+
             return helloMessage;
         }
 
@@ -101,7 +115,7 @@ namespace Assets.TestProject.Scripts.Infractructure
 
             var newSettings = await LoadGameSettings(_remoteInfoLoader, _gameInfoManager.LoadedInfo);
 
-            _uiManager.UpdateInfo(newSettings);
+            await _uiManager.UpdateInfo(_loadPreviewer, _remoteDatasURLCollector.SimplesSceneBundleID, newSettings);
             _loadPreviewer.StopLoadAnim();
         }
     }

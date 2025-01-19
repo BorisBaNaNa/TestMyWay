@@ -1,0 +1,7 @@
+ManifestFileVersion: 0
+CRC: 3627383013
+AssetBundleManifest:
+  AssetBundleInfos:
+    Info_0:
+      Name: content/simplescene
+      Dependencies: {}

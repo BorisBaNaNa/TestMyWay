@@ -43,6 +43,11 @@ namespace Assets.TestProject.Scripts.UI
             catch (OperationCanceledException) { throw; }
         }
 
+        public void StartUI()
+        {
+            gameObject.SetActive(true);
+        }
+
         public void SaveInfoTo(GameInfo gameInfo)
         {
             gameInfo.CounterInfo = _counter.Info;

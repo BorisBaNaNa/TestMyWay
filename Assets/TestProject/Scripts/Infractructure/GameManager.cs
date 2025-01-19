@@ -43,7 +43,7 @@ namespace Assets.TestProject.Scripts.Infractructure
             _gameInfoManager.SaveGameInfo();
         }
 
-        public async UniTask LoadGameInfoAndSetupAsync()
+        public async UniTask<bool> LoadGameInfoAndSetupAsync()
         {
             _gameIsLoaded = false;
             _remoteInfoLoader = AllServices.GetService<IRemoteInfoLoader>();
@@ -61,12 +61,18 @@ namespace Assets.TestProject.Scripts.Infractructure
                 await FakeLoad();
 
                 await _uiManager.SetupAsync(_loadPreviewer, helloMessage, gameInfo, _remoteDatasURLCollector.SimplesSceneBundleID, destroyCancellationToken);
-                _uiManager.gameObject.SetActive(true);
                 _loadPreviewer.StopLoadAnim();
                 _gameIsLoaded = true;
+
+                return true;
             }
-            catch (OperationCanceledException) { }
+            catch (OperationCanceledException)
+            {
+                return false;
+            }
         }
+
+        public void StartGame() => _uiManager.StartUI();
 
         private async UniTask<AssetBundle> LoadAssetBundle()
         {

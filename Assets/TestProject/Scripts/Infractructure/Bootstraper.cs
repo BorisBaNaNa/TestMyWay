@@ -20,7 +20,15 @@ namespace Assets.TestProject.Scripts.Infractructure
 
         private void Start()
         {
-            _gameManager.LoadGameInfoAndSetupAsync().Forget();
+            InitGameAsync().Forget();
+        }
+
+        private async UniTaskVoid InitGameAsync()
+        {
+            if (!await _gameManager.LoadGameInfoAndSetupAsync())
+                return;
+
+            _gameManager.StartGame();
         }
 
         private void OnDestroy()

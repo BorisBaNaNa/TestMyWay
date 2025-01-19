@@ -7,6 +7,9 @@ using Cysharp.Threading.Tasks;
 using Assets.TestProject.Scripts.Data;
 using Assets.TestProject.Scripts.LoaderScene;
 using System.Threading.Tasks;
+using Assets.TestProject.Scripts.Infractructure.Interfaces;
+using Assets.TestProject.Scripts.Infractructure.Loaders.Interfaces;
+using Assets.TestProject.Scripts.UI;
 
 namespace Assets.TestProject.Scripts.Infractructure
 {
@@ -19,6 +22,7 @@ namespace Assets.TestProject.Scripts.Infractructure
         private LoadPreviewer _loadPreviewer;
         private IGameInfoManager _gameInfoManager;
         private IRemoteInfoLoader _remoteInfoLoader;
+        private bool _gameIsLoaded;
 
         private void Awake()
         {
@@ -32,32 +36,42 @@ namespace Assets.TestProject.Scripts.Infractructure
 
         public void OnApplicationQuit()
         {
+            if (!_gameIsLoaded)
+                return;
+
             _uiManager.SaveInfoTo(_gameInfoManager.LoadedInfo);
             _gameInfoManager.SaveGameInfo();
         }
 
         public async UniTask LoadGameInfoAndSetupAsync()
         {
+            _gameIsLoaded = false;
             _remoteInfoLoader = AllServices.GetService<IRemoteInfoLoader>();
             _gameInfoManager = AllServices.GetService<IGameInfoManager>();
 
             await SetupLoadPreviewver(5);
             _loadPreviewer.StartLoadAnim(true);
 
-            GameInfo gameInfo = await LoadGameInfo();
-            await LoadGameSettings(_remoteInfoLoader, gameInfo);
-            HelloMessage helloMessage = await LoadHelloInfo(_remoteInfoLoader);
-            await LoadAssetBundle();
-            await FakeLoad();
+            try
+            {
+                GameInfo gameInfo = await LoadGameInfo();
+                await LoadGameSettings(_remoteInfoLoader, gameInfo);
+                HelloMessage helloMessage = await LoadHelloInfo(_remoteInfoLoader);
+                await LoadAssetBundle();
+                await FakeLoad();
 
-            await _uiManager.SetupAsync(_loadPreviewer, helloMessage, gameInfo, _remoteDatasURLCollector.SimplesSceneBundleID);
-            _loadPreviewer.StopLoadAnim();
+                await _uiManager.SetupAsync(_loadPreviewer, helloMessage, gameInfo, _remoteDatasURLCollector.SimplesSceneBundleID, destroyCancellationToken);
+                _uiManager.gameObject.SetActive(true);
+                _loadPreviewer.StopLoadAnim();
+                _gameIsLoaded = true;
+            }
+            catch (OperationCanceledException) { }
         }
 
         private async UniTask<AssetBundle> LoadAssetBundle()
         {
-            var assetBundle = await AllServices.GetService<AssetBundleLoader>()
-                .LoadAndCacheAsync(_remoteDatasURLCollector.SimplesSceneBundleID);
+            var assetBundle = await AllServices.GetService<IAssetBundleLoader>()
+                .LoadAndCacheAsync(_remoteDatasURLCollector.SimplesSceneBundleID, destroyCancellationToken);
             _loadPreviewer.IncProgress();
 
             return assetBundle;
@@ -65,14 +79,14 @@ namespace Assets.TestProject.Scripts.Infractructure
 
         private async Task<GameInfo> LoadGameInfo()
         {
-            var gameInfo = await _gameInfoManager.LoadGameInfoAsync();
+            var gameInfo = await _gameInfoManager.LoadGameInfoAsync(destroyCancellationToken);
             _loadPreviewer.IncProgress();
             return gameInfo;
         }
 
         private async Task<GameSettings> LoadGameSettings(IRemoteInfoLoader remoteInfoLoader, GameInfo gameInfo)
         {
-            var gameSettings = await remoteInfoLoader.LoadAsync<GameSettings>(_remoteDatasURLCollector.GameSettingsID);
+            var gameSettings = await remoteInfoLoader.LoadAsync<GameSettings>(_remoteDatasURLCollector.GameSettingsID, destroyCancellationToken);
 
             if (gameSettings == null)
                 gameSettings = gameInfo.GameSettings;
@@ -85,7 +99,7 @@ namespace Assets.TestProject.Scripts.Infractructure
 
         private async Task<HelloMessage> LoadHelloInfo(IRemoteInfoLoader remoteInfoLoader)
         {
-            var helloMessage = await remoteInfoLoader.LoadAsync<HelloMessage>(_remoteDatasURLCollector.HelloMessageID);
+            var helloMessage = await remoteInfoLoader.LoadAsync<HelloMessage>(_remoteDatasURLCollector.HelloMessageID, destroyCancellationToken);
             _loadPreviewer.IncProgress();
 
             if (helloMessage == null)
@@ -96,7 +110,7 @@ namespace Assets.TestProject.Scripts.Infractructure
 
         private async Task FakeLoad()
         {
-            await UniTask.WaitForSeconds(_fakeLoadTime);
+            await UniTask.WaitForSeconds(_fakeLoadTime, cancellationToken: destroyCancellationToken);
             _loadPreviewer.IncProgress();
         }
 

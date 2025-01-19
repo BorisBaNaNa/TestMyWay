@@ -34,6 +34,7 @@ namespace Assets.TestProject.Scripts.LoaderScene
 
         public void Dispose()
         {
+            _loadSequence?.Kill();
             SceneManager.UnloadSceneAsync(SCENE_NAME);
         }
 

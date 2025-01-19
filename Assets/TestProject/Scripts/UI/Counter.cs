@@ -1,11 +1,14 @@
 ﻿using Assets.TestProject.Scripts.Data;
+using Assets.TestProject.Scripts.Infractructure;
+using Assets.TestProject.Scripts.Infractructure.Loaders.Interfaces;
 using Cysharp.Threading.Tasks;
 using System;
+using System.Threading;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace Assets.TestProject.Scripts.Infractructure
+namespace Assets.TestProject.Scripts.UI
 {
     public class Counter : MonoBehaviour
     {
@@ -37,12 +40,12 @@ namespace Assets.TestProject.Scripts.Infractructure
             _incrementBtn.onClick.RemoveListener(Inctement);
         }
 
-        public async UniTask SetupAsync(string simplesSceneBundleID, int startCount)
+        public async UniTask SetupAsync(string simplesSceneBundleID, int startCount, CancellationToken token = default)
         {
             Count = startCount;
 
-            Sprite buttonSprite = await AllServices.GetService<AssetBundleLoader>()
-                .LoadAssetAsync<Sprite>(simplesSceneBundleID, _buttonSpriteName);
+            Sprite buttonSprite = await AllServices.GetService<IAssetBundleLoader>()
+                .LoadAssetAsync<Sprite>(simplesSceneBundleID, _buttonSpriteName, token);
             //_incrementBtn.image.overrideSprite = buttonSprite;
             _incrementBtn.image.sprite = buttonSprite;
         }

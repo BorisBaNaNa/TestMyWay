@@ -4,17 +4,18 @@ using UnityEngine.Networking;
 using Newtonsoft.Json;
 using JetBrains.Annotations;
 using Assets.TestProject.Scripts.Data;
-using System.Collections.Generic;
+using System.Threading;
+using Assets.TestProject.Scripts.Infractructure.Loaders.Interfaces;
 
-namespace Assets.TestProject.Scripts.Infractructure
+namespace Assets.TestProject.Scripts.Infractructure.Loaders
 {
     public class GoogleDiskJsonLoader : IRemoteInfoLoader
     {
         [CanBeNull]
-        public async UniTask<T> LoadAsync<T>(string id) where T : class
+        public async UniTask<T> LoadAsync<T>(string id, CancellationToken token = default) where T : class
         {
             UnityWebRequest request = UnityWebRequest.Get(RemoteDatasURLCollector.GOOGLE_DISK_LOAD_URL + id);
-            await request.SendWebRequest().ToUniTask();
+            await request.SendWebRequest().ToUniTask(cancellationToken: token);
 
             if (request.result == UnityWebRequest.Result.ConnectionError || request.result == UnityWebRequest.Result.ProtocolError)
             {
